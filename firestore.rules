@@ -1,0 +1,74 @@
+rules_version = '2';
+// Uday Jewellers Privé Portal Security Rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Catch-All Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'chaitanyanarwade000@gmail.com' ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if (isOwner(userId) || isAdmin()) && (
+        // Safeguard user profile updates
+        !incoming().diff(existing()).affectedKeys().hasAny(['isAdmin']) || isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // --- Appointments Collection ---
+    match /appointments/{appointmentId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        existing().userId == request.auth.uid || isAdmin()
+      ) && (
+        // Prevent changing userId after creation
+        incoming().userId == existing().userId
+      );
+      allow delete: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+    }
+
+    // --- Orders Collection ---
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && (existing().userId == request.auth.uid || isAdmin());
+      allow list: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isSignedIn() && incoming().userId == request.auth.uid;
+      allow update: if isSignedIn() && (
+        existing().userId == request.auth.uid || isAdmin()
+      ) && (
+        incoming().userId == existing().userId
+      );
+      allow delete: if isAdmin();
+    }
+  }
+}

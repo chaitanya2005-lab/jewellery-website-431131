@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "Premium customer account details including saved addresses and admin privilege",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Unique user ID" },
+        "email": { "type": "string", "format": "email", "description": "Patron email address" },
+        "name": { "type": "string", "description": "Patron full name" },
+        "phone": { "type": "string", "description": "Patron phone number" },
+        "savedAddresses": { "type": "array", "description": "Saved shipping addresses" },
+        "isAdmin": { "type": "boolean", "description": "Whether this user is an admin" }
+      },
+      "required": ["uid", "email", "name"]
+    },
+    "appointments": {
+      "title": "Appointment",
+      "description": "Store appointment scheduling for luxury consultations",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Appointment ID" },
+        "userId": { "type": "string", "description": "User ID of the customer" },
+        "name": { "type": "string", "description": "Full name of contact" },
+        "email": { "type": "string", "description": "Email address of contact" },
+        "phone": { "type": "string", "description": "Mobile number of contact" },
+        "date": { "type": "string", "description": "Date of appointment" },
+        "time": { "type": "string", "description": "Preferred time slot" },
+        "type": { "type": "string", "enum": ["Bridal Consultation", "Bespoke Design", "Gold Valuation", "Custom Jewellery Design", "Jewellery Exchange", "Gold Purchase", "Jewellery Repair"], "description": "Type of service requested" },
+        "location": { "type": "string", "description": "Store location name" },
+        "notes": { "type": "string", "description": "Special requests and notes" },
+        "status": { "type": "string", "enum": ["Scheduled", "Rescheduled", "Cancelled", "Completed"], "description": "Current status of appointment" },
+        "createdAt": { "type": "string", "description": "Time of booking" }
+      },
+      "required": ["id", "name", "email", "phone", "date", "time", "type", "location"]
+    },
+    "orders": {
+      "title": "Order",
+      "description": "Jewellery purchase and bespoke design dispatch records",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Order ID" },
+        "userId": { "type": "string", "description": "User ID of purchaser" },
+        "totalAmount": { "type": "number", "description": "Total order amount paid" },
+        "shippingAddress": { "type": "object", "description": "Full delivery address" },
+        "date": { "type": "string", "description": "Order placement date" },
+        "status": { "type": "string", "enum": ["Placed", "Crafting", "Hallmarked", "Dispatched", "Delivered"], "description": "Order tracking state" },
+        "trackingNumber": { "type": "string", "description": "Dispatch shipping tracking number" },
+        "paymentDetails": { "type": "object", "description": "Method of payment and last 4 card details" },
+        "createdAt": { "type": "string", "description": "Database insertion timestamp" }
+      },
+      "required": ["id", "userId", "totalAmount", "shippingAddress", "date", "status", "trackingNumber"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "users",
+      "description": "Collection of patron user accounts"
+    },
+    "/appointments/{appointmentId}": {
+      "schema": "appointments",
+      "description": "Collection of scheduled luxury bookings"
+    },
+    "/orders/{orderId}": {
+      "schema": "orders",
+      "description": "Collection of premium transactions"
+    }
+  }
+}

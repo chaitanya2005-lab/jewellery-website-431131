@@ -1,0 +1,6 @@
+{
+  "name": "Uday Jewellers",
+  "description": "Premium luxury jewelry e-commerce website inspired by CaratLane, featuring fine gold, diamond, silver, and bridal collections.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
